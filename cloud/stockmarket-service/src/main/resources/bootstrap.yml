@@ -1,8 +1,8 @@
 spring:
   application:
-    name: discovery-service
+    name: stockmarket-service
   config:
-    name: discovery-service
+    name: stockmarket-service
   cloud:
     config:
       uri: http://localhost:8888

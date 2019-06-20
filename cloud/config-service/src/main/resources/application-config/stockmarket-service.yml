@@ -1,0 +1,21 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+  application:
+    name: stockmarket-service
+app:
+  kafka:
+    replication.factor: 1
+    partition.number: 1
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+  server:
+    enableSelfPreservation: false
+server:
+  port: 8881
