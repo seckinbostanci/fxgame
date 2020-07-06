@@ -6,7 +6,6 @@ import com.pretty_tools.dde.client.DDEClientConversation;
 import com.pretty_tools.dde.client.DDEClientEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,12 +18,11 @@ public class StockmarketServiceApplication implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(StockmarketServiceApplication.class);
 
     private final String SERVICE = "MT4";
-    private final String ITEM = "USDTRY";
     private final String TOPIC = "QUOTE";
+    private final String[] ITEM = { "EURUSD" };
+
     private final CountDownLatch eventDisconnect = new CountDownLatch(1);
 
-    @Autowired
-    private KafkaUtils kafkaUtils;
 
     public static void main(String[] args) {
         SpringApplication.run(StockmarketServiceApplication.class, args);
@@ -45,7 +43,6 @@ public class StockmarketServiceApplication implements CommandLineRunner {
                     stockmarketData.setStockPrices(data.split(" ")[2] + " " + data.split(" ")[3]);
                     stockmarketData.setTime(data.split(" ")[1] + " " + data.split(" ")[1]);
                     LOGGER.info("Stockmarket Data : " + item + " [ " + data + " ]");
-                    kafkaUtils.produceEvent(stockmarketData);
                     try {
                         if ("stop".equalsIgnoreCase(data))
                             conversation.stopAdvice(item);
@@ -53,11 +50,18 @@ public class StockmarketServiceApplication implements CommandLineRunner {
                         LOGGER.error(e.getMessage());
                     }
                 }
+
             });
 
             LOGGER.info("Connecting to Metatrader DDE Server.");
             conversation.connect(SERVICE, TOPIC);
-            conversation.startAdvice(ITEM);
+
+            if(0 < ITEM.length){
+                for (String i : ITEM) {
+                    conversation.startAdvice(i);
+                }
+            }
+
             eventDisconnect.await();
             LOGGER.info("Disconnecting from Metatrader DDE Server.");
             conversation.disconnect();
